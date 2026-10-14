@@ -1,114 +1,107 @@
-<h1 align="center">GEM: A Generalist Model for Human Motion</h1>
+# ComfyUI-GEM-X
 
-<p align="center">
-  <em>Monocular whole-body 3D human pose estimation using the SOMA body model</em>
-</p>
+English | [中文](README_CN.md)
 
-<p align="center">
-  <a href="https://research.nvidia.com/labs/dair/gem/"><img src="https://img.shields.io/badge/Project-Page-0099cc"></a>
-  <a href="https://arxiv.org/abs/2505.01425"><img src="https://img.shields.io/badge/arXiv-2505.01425-b31b1b.svg"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-green"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10%2B-blue"></a>
-  <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.10%2B-ee4c2c"></a>
-  <a href="https://developer.nvidia.com/cuda/toolkit"><img src="https://img.shields.io/badge/CUDA-12.6%2B-76b900"></a>
-</p>
+Whole-body motion capture from a single video in ComfyUI with NVIDIA [GEM-X](https://github.com/NVlabs/GEM-X) (SOMA body, 77 joints), plus retargeting onto Mixamo / Unreal / Unity FBX characters that play back right in ComfyUI's built-in 3D preview.
 
----
+Video → person tracking → ViTPose 77 keypoints → SAM-3D-Body features → GEM → SOMA motion → animated FBX character.
 
-<p align="center">
-  <img src="assets/demo_2d_keypoints.gif" width="30%" alt="2D Keypoint Overlay">
-  <img src="assets/demo_incam_mesh.gif" width="30%" alt="In-Camera Mesh">
-</p>
-<p align="center">
-  <img src="assets/demo_global_mesh.gif" width="30%" alt="Global Mesh">
-  <img src="assets/demo_g1_retarget.gif" width="30%" alt="G1 Robot Retarget">
-</p>
-<p align="center">
-  <sub>2D Keypoint Overlay &nbsp;|&nbsp; In-Camera Mesh &nbsp;|&nbsp; Global Mesh &nbsp;|&nbsp; Retargeted G1 Motion</sub>
-</p>
+![GEM-X workflow](docs/images/workflow.png)
 
+*The workflow is embedded in this image: drag it into ComfyUI to open it. The same workflow is in [example_workflows/](example_workflows).*
 
-## 📰 News
+## Installation
 
-- **[2025-06]** 📢 Added ONNX/TensorRT accelerated demo (`demo_soma_onnx.py`) — see [Demo docs](docs/DEMO.md#accelerated-pipeline-demo_soma_onnxpy)
-- **[2025-06]** 📢 Added humanoid robot retargeting to Unitree G1 (`--retarget`)
-- **[2025-05]** 📢 The **GEM** codebase is released!
+Requires an NVIDIA GPU with CUDA. Run the commands below with ComfyUI's own Python.
 
-## 🔎 Overview
-
-GEM is a video-based 3D human pose estimation model developed by NVIDIA. It recovers full-body 77-joint motion — including body, hands, and face — from monocular video using the [**SOMA**](https://github.com/NVlabs/SOMA-X) parametric body model. The pipeline handles dynamic cameras and recovers global motion trajectories. GEM includes a bundled 2D pose estimation model that detects 77 SOMA keypoints, making the system fully self-contained. Licensed under Apache 2.0 for commercial use.
-
-## ✨ Key Features
-
-- **77-joint SOMA body model** — full body, hands, and face articulation
-- **Bundled 2D keypoint detector** — 2D pose estimator trained for SOMA 77-joint skeleton
-- **Camera-space motion recovery** — camera-space human motion estimation from dynamic monocular video
-- **World-space motion recovery** — world-space human motion estimation from dynamic monocular video
-- **Humanoid robot retargeting** — retarget recovered motion to Unitree G1 robot via [SOMA Retargeter](https://github.com/NVIDIA/soma-retargeter)
-- **Apache 2.0 licensed** — commercially usable, trained on NVIDIA-owned data only
-
-## Research Version: Multi-Modal Conditioning
-
-Looking for **multi-modal motion generation** (text, audio, music conditioning)? Check out [**GEM-SMPL**](https://github.com/NVlabs/GENMO), our research model using the SMPL body model that supports both motion estimation and generation from diverse input modalities. Presented at **ICCV 2025 (Highlight)**.
-
-## 🚀 Quick Start
+**1. Clone this repository into ComfyUI's `custom_nodes` directory:**
 
 ```bash
-# 1. Clone
-git clone --recursive https://github.com/NVlabs/GEM-X.git && cd GEM-X
-
-# 2. Setup environment
-pip install uv && uv venv .venv --python 3.12 && source .venv/bin/activate
-uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
-uv pip install -e third_party/soma && cd third_party/soma && git lfs pull && cd ../..
-bash scripts/install_env.sh
-
-# 3. Run demo
-python scripts/demo/demo_soma.py --video path/to/video.mp4 --ckpt inputs/pretrained/gem_soma.ckpt
-
-# 4. (Optional) Retarget to G1 robot
-uv pip install -e third_party/soma-retargeter
-python scripts/demo/demo_soma.py --video path/to/video.mp4 --retarget
+cd ComfyUI/custom_nodes
+git clone https://github.com/lkevincc0/ComfyUI-GEM-X.git
 ```
 
-See [docs/INSTALL.md](docs/INSTALL.md) for detailed installation instructions.
+**2. Install dependencies:**
 
-> **Mac users:** For real-time webcam demos on Apple Silicon, see
-> [docs/INSTALL_MACOS.md](docs/INSTALL_MACOS.md) instead.
+```bash
+cd ComfyUI-GEM-X
+pip install -r requirements.txt
+python install.py
+```
 
-## 📚 Documentation
+`install.py` creates the plugin's own inference environment `.venv` (reusing ComfyUI's installed PyTorch), installs the inference dependencies from `requirements-worker.txt`, and unpacks the three bundled characters (with textures) into `ComfyUI/models/gem_x/fbx/`. ComfyUI-Manager runs this step automatically when installing from the Git URL.
 
-| Document | Description |
+**3. Restart ComfyUI.** The nodes appear under the `GEM-X` category. Example workflows are in `example_workflows/` and can be dragged straight into ComfyUI.
+
+Optional environment variables: `GEM_X_PYTHON` points inference at an existing Python environment (also set `GEM_X_SKIP_VENV=1` to skip creating `.venv`); `COMFYUI_MODELS_DIR` sets a non-default models directory.
+
+## Models
+
+Models download automatically to `ComfyUI/models/gem_x/` on first use, and only the files the selected mode needs. Downloads come from HuggingFace first, fall back to the ModelScope mirror, and resume if interrupted.
+
+| Model | Purpose | Size | Needed for |
+|---|---|---:|---|
+| YOLOX-X HumanArt | Person detection | 370 MB | All modes |
+| SOMA body assets + scale data | Body model, retargeting | 130 MB | All modes (incl. retarget node) |
+| ViTPose (ONNX) | 77-point 2D keypoints | 3.4 GB | `onnx` |
+| GEM denoiser (ONNX) | Motion regression | 200 MB | `onnx` + `sam3d` |
+| SAM-3D-Body backbone (ONNX) | Image features | 3.4 GB | `onnx` + `sam3d` |
+| SAM-3D-Body checkpoint + MHR | Image feature decoding | 2.8 GB | `sam3d`, `pytorch` |
+| GEM denoiser no-imgfeat (ONNX) | Motion regression without image features | 1.3 GB | `onnx` + `keypoints_only` |
+| GEM checkpoint + ViTPose (PyTorch) | PyTorch backend | 3.9 GB | `pytorch` |
+
+The default mode (`backend=onnx`, `image_features=sam3d`) needs about 9.8 GB. To download ahead of time:
+
+```bash
+python -m comfyui_gem_x.models /path/to/ComfyUI/models/gem_x          # default mode
+python -m comfyui_gem_x.models /path/to/ComfyUI/models/gem_x --all    # every mode
+```
+
+The full file list and manual download links are in [docs/COMFYUI_ONNX_MODELS.md](docs/COMFYUI_ONNX_MODELS.md) (Chinese).
+
+## Nodes
+
+| Node | Description |
 |---|---|
-| [Installation](docs/INSTALL.md) | Prerequisites, step-by-step setup, Docker, troubleshooting |
-| [Installation (macOS)](docs/INSTALL_MACOS.md) | Apple Silicon setup for the real-time webcam demo |
-| [Demo](docs/DEMO.md) | Full 3D pipeline, ONNX/TRT accelerated demo, 2D keypoint-only demo, output formats |
-| [Training & Evaluation](docs/TRAINING.md) | Dataset preparation, training commands, config system |
-| [Model Overview](docs/MODEL_OVERVIEW.md) | Architecture, SOMA body model, bundled 2D pose model |
-| [Related Projects](docs/RELATED_PROJECTS.md) | GENMO, SOMA, ecosystem cross-references |
+| **GEM-X Video to SOMA Motion** | Video → SOMA motion. Outputs `motion`, `motion.npz`, a keypoint preview video and a result manifest; the node plays the preview and links the downloads. |
+| **GEM-X Retarget to FBX Character** | Retargets `motion` onto a character in `models/gem_x/fbx/`. Outputs `FILE_3D_FBX`, the FBX path and camera settings; connect it to the built-in **Preview 3D (Advanced)** to play it. |
+| **GEM-X Frames to Video** | Encodes an `IMAGE` frame batch into a temporary MP4, e.g. from a video generation node. |
+| **GEM-X Video Path** | Takes a video path (absolute, or relative to `input/`). |
 
-## 📦 Pretrained Models
+The example workflow: Load Video → Trim Video (pick a segment) → motion capture → three characters, each retargeted and previewed.
 
-| Model | Body Model | Joints | Download |
-|---|---|---|---|
-| GEM (SOMA) | SOMA | 77 (body + hands + face) | [gem_soma.ckpt](https://huggingface.co/nvidia/GEM-X) |
+### Inference options
 
-Place checkpoints under `inputs/pretrained/` or pass the path via `--ckpt`. The demo scripts will automatically download the checkpoint from HuggingFace if `--ckpt` is not provided.
+- `backend`: `onnx` by default; `postprocess` (contact/translation post-processing) requires `pytorch`.
+- `image_features`: `sam3d` uses image features; `keypoints_only` skips SAM3D and downloads less, but compare the results yourself.
+- `preview`: `none` / `keypoints` / `mesh` (mesh needs Open3D/EGL).
+- Only the main tracked person is processed; the camera is treated as static; the input frame rate is kept, so convert variable-frame-rate videos to a constant rate first.
 
-## 🤝 Related Humanoid Work at NVIDIA
-GEM is part of a larger effort to enable humanoid motion data for robotics, physical AI, and other applications.
+### Retargeting
 
-Check out these related works:
-* [GENMO](https://github.com/NVlabs/GENMO)
-* [SOMA Body Model](https://github.com/NVlabs/SOMA-X)
-* [BONES-SEED Dataset]()
-* [ProtoMotions](https://github.com/NVlabs/ProtoMotions)
-* [SOMA Retargeter]()
-* [SONIC](https://github.com/NVlabs/GR00T-WholeBodyControl)
-* [Kimodo](https://github.com/nv-tlabs/kimodo)
+- Rigs are detected by bone names: Mixamo (with or without the `mixamorig:` prefix), Unreal UE4/UE5/UEFN humanoids, and Unity Robot Kyle. Y-up/Z-up and T-pose/A-pose are aligned automatically.
+- Spine, head, arms, legs and toes are mapped; fingers, twist bones and IK bones keep the character's rest pose. Root motion is scaled by leg length; turn off `root_motion` to animate in place; `yaw_offset` rotates the heading.
+- `material=auto` looks for textures by file name next to the FBX (subfolders included) and embeds them in the output FBX (TGA etc. converted to PNG); if none are found it uses solid orange. Other choices: `original` / `red` / `orange` / `gray` / `blue`.
+- Bundled characters: Mixamo X Bot, the UEFN mannequin (no textures, orange by default) and Unity Robot Kyle (with its color texture). Put a new `.fbx` in `models/gem_x/fbx/` (a subfolder can hold its textures) to pick it from the dropdown.
+- After export the animation is read back and checked (rotation error > 1° raises an error). This only guarantees the keys were written correctly; judge the motion itself in the preview.
 
+## Output format
 
-## 📖 Citation
+`motion.npz` loads with `numpy.load(path, allow_pickle=False)` and contains `body_params_incam/<param>`, `body_params_global/<param>`, `K_fullimg`, `fps` and `frame_count`. Translation is in meters and poses use the SOMA axis-angle representation. `hpe_results.pt` keeps the original upstream prediction.
+
+## Tests
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+These only check process calls, errors, cancellation and result hand-off; they are not a model accuracy or GPU test.
+
+## Credits and license
+
+Built on NVIDIA [GEM-X](https://github.com/NVlabs/GEM-X), with [SOMA-X](https://github.com/NVlabs/SOMA-X) and [SAM-3D-Body](https://github.com/facebookresearch/sam-3d-body) vendored in `third_party/` (with small compatibility fixes). The retargeting approach was inspired by [ComfyUI-Kimodo](https://github.com/jtydhr88/ComfyUI-Kimodo).
+
+Source code is under [Apache 2.0](LICENSE); third-party components are listed in [ATTRIBUTIONS.md](ATTRIBUTIONS.md) and the LICENSE files under `third_party/`. Model weights are under the [NVIDIA Open Model License](https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/). The characters in `assets/characters.zip` come from Adobe Mixamo, Epic Games (UEFN) and Unity, and each is subject to its platform's terms of use.
 
 ```bibtex
 @inproceedings{genmo2025,
@@ -118,12 +111,3 @@ Check out these related works:
   year      = {2025}
 }
 ```
-
-
-## 📄 License
-
-This project is released under [Apache 2.0](LICENSE). This project will download and install additional third-party open source software projects. Review the license terms of these open source projects before use. See [ATTRIBUTIONS.md](ATTRIBUTIONS.md) for specifics. 
-
-## GOVERNING TERMS: 
-
-Use of the source code is governed by the [Apache License](https://huggingface.co/datasets/choosealicense/licenses/blob/main/markdown/apache-2.0.md), Version 2.0. Use of the associated model is governed by the [NVIDIA Open Model License Agreement](https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/). 

@@ -20,6 +20,8 @@ from urllib.request import Request, urlopen
 import cv2
 import numpy as np
 
+from gem.utils.model_paths import model_path
+
 # ---------------------------------------------------------------------------
 #  Constants
 # ---------------------------------------------------------------------------
@@ -30,7 +32,7 @@ YOLOX_X_URL = (
     "https://download.openmmlab.com/mmpose/v1/projects/rtmposev1/"
     "onnx_sdk/yolox_x_8xb8-300e_humanart-a39d44ed.zip"
 )
-_CACHE_DIR = (
+_CACHE_DIR = Path(model_path("yolox")) if "GEM_X_MODEL_ROOT" in os.environ else (
     Path(os.getenv("TORCH_HOME", os.path.expanduser("~/.cache/rtmlib"))) / "hub" / "checkpoints"
 )
 

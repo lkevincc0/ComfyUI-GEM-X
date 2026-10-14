@@ -1,0 +1,6 @@
+include LICENSE
+include README.md
+recursive-include soma *.py
+prune assets
+prune tools
+prune tests

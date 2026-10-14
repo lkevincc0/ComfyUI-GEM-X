@@ -33,6 +33,7 @@ from gem.utils.rotation_conversions import (
     rotation_6d_to_matrix,
 )
 from gem.utils.soma_augment import NVSKEL_LFINGERS_IDX, NVSKEL_RFINGERS_IDX
+from gem.utils.model_paths import model_path
 from gem.utils.soma_utils.soma_layer import SomaLayer
 
 
@@ -56,7 +57,7 @@ class Pipeline(nn.Module):
         if self._soma_body_model is None:
             with torch.amp.autocast("cuda", enabled=False):
                 self._soma_body_model = SomaLayer(
-                    data_root="inputs/soma_assets",
+                    data_root=model_path("soma_assets"),
                     low_lod=True,
                     device="cuda",
                     identity_model_type="mhr",

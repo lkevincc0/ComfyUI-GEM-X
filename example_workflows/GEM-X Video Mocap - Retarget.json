@@ -1,0 +1,1108 @@
+{
+  "id": "ed5cbda3-dec3-4ea6-93e3-c191c2080faa",
+  "revision": 0,
+  "last_node_id": 17,
+  "last_link_id": 22,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadVideo",
+      "pos": [
+        -21.989838189079947,
+        180
+      ],
+      "size": [
+        340,
+        414
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "slot_index": 0,
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadVideo"
+      },
+      "widgets_values": [
+        "walking.mp4",
+        "image"
+      ],
+      "widgets_values_named": {
+        "file": "walking.mp4",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 2,
+      "type": "GetVideoComponents",
+      "pos": [
+        429.7596833585634,
+        326.6691740655885
+      ],
+      "size": [
+        260,
+        150
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "slot_index": 1,
+          "links": null
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "slot_index": 2,
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "bit_depth",
+          "type": "COMBO",
+          "slot_index": 3,
+          "links": null
+        },
+        {
+          "name": "color_space",
+          "type": "COMBO",
+          "slot_index": 4,
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetVideoComponents"
+      }
+    },
+    {
+      "id": 3,
+      "type": "GEMXFramesToVideo",
+      "pos": [
+        410.06904740563533,
+        518.3188844134031
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "fps"
+          },
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video_path",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GEMXFramesToVideo"
+      },
+      "widgets_values": [
+        30
+      ],
+      "widgets_values_named": {
+        "fps": 30
+      }
+    },
+    {
+      "id": 4,
+      "type": "GEMXInfer",
+      "pos": [
+        849.1345746165713,
+        79.95613338632954
+      ],
+      "size": [
+        440,
+        580
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video_path",
+          "type": "STRING",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "motion",
+          "type": "GEM_MOTION",
+          "slot_index": 0,
+          "links": [
+            14,
+            16,
+            18
+          ]
+        },
+        {
+          "name": "motion_npz",
+          "type": "STRING",
+          "slot_index": 1,
+          "links": null
+        },
+        {
+          "name": "preview_video",
+          "type": "STRING",
+          "slot_index": 2,
+          "links": null
+        },
+        {
+          "name": "manifest_json",
+          "type": "STRING",
+          "slot_index": 3,
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GEMXInfer"
+      },
+      "widgets_values": [
+        "keypoints",
+        false,
+        0,
+        "fixed",
+        "",
+        "onnx",
+        "sam3d"
+      ],
+      "widgets_values_named": {
+        "preview": "keypoints",
+        "postprocess": false,
+        "seed": 0,
+        "control_after_generate": "fixed",
+        "checkpoint": "",
+        "backend": "onnx",
+        "image_features": "sam3d"
+      }
+    },
+    {
+      "id": 5,
+      "type": "Note",
+      "pos": [
+        -923.4960812554776,
+        225.37994290092934
+      ],
+      "size": [
+        650,
+        260
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "## GEM-X Video Motion Capture + FBX Character Retargeting\n\n1. **Load Video:** Select a video file. In **Trim Video**, set `start_time` (start time in seconds) and `duration` (length to keep in seconds; `0` means until the end of the video).\n\n2. **Run:** Click **Run** to perform motion capture first, then retarget the captured motion to the three characters on the right (**Mixamo / Unreal / Unity**).\n\n3. **Preview Animation:** Click the Play button in each **Preview 3D** node to view the animation. The retargeted character FBX files are also saved in `output/gem_x/<task>/`.\n\n### Retarget Node Settings\n\n- **character:** Select a character from `models/gem_x/fbx`.\n- **root_motion:** Disable this option to keep the character animated in place (without moving across the scene).\n- **yaw_offset:** Adjust the character's facing direction (rotation around the vertical axis).\n\n**Note:** Finger movements are not currently retargeted. Characters will retain their default hand poses.\n\n\n---\n\n\nGEM-X 视频动捕 + FBX 角色重定向\n\n1. Load Video 选择视频；Trim Video 设置 start_time（开始秒）和 duration（保留秒数，0 = 到结尾）。\n2. 点击 Run：先做动作捕捉，再把动作重定向到右侧三个角色（Mixamo / Unreal / Unity）。\n3. 每个 Preview 3D 节点里点播放按钮查看动画；角色 FBX 也保存在 output/gem_x/<任务>/ 下。\n\nRetarget 节点参数：character 选 models/gem_x/fbx 里的角色；root_motion 关闭后原地播放；yaw_offset 调整朝向。\n手指暂不重定向，保持角色默认手型。"
+      ],
+      "widgets_values_named": {
+        "text": "## GEM-X Video Motion Capture + FBX Character Retargeting\n\n1. **Load Video:** Select a video file. In **Trim Video**, set `start_time` (start time in seconds) and `duration` (length to keep in seconds; `0` means until the end of the video).\n\n2. **Run:** Click **Run** to perform motion capture first, then retarget the captured motion to the three characters on the right (**Mixamo / Unreal / Unity**).\n\n3. **Preview Animation:** Click the Play button in each **Preview 3D** node to view the animation. The retargeted character FBX files are also saved in `output/gem_x/<task>/`.\n\n### Retarget Node Settings\n\n- **character:** Select a character from `models/gem_x/fbx`.\n- **root_motion:** Disable this option to keep the character animated in place (without moving across the scene).\n- **yaw_offset:** Adjust the character's facing direction (rotation around the vertical axis).\n\n**Note:** Finger movements are not currently retargeted. Characters will retain their default hand poses.\n\n\n---\n\n\nGEM-X 视频动捕 + FBX 角色重定向\n\n1. Load Video 选择视频；Trim Video 设置 start_time（开始秒）和 duration（保留秒数，0 = 到结尾）。\n2. 点击 Run：先做动作捕捉，再把动作重定向到右侧三个角色（Mixamo / Unreal / Unity）。\n3. 每个 Preview 3D 节点里点播放按钮查看动画；角色 FBX 也保存在 output/gem_x/<任务>/ 下。\n\nRetarget 节点参数：character 选 models/gem_x/fbx 里的角色；root_motion 关闭后原地播放；yaw_offset 调整朝向。\n手指暂不重定向，保持角色默认手型。"
+      },
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 11,
+      "type": "Video Slice",
+      "pos": [
+        424.29130506122067,
+        181.69518309951496
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Video Slice"
+      },
+      "widgets_values": [
+        0,
+        4,
+        false
+      ],
+      "widgets_values_named": {
+        "start_time": 0,
+        "duration": 4,
+        "strict_duration": false
+      }
+    },
+    {
+      "id": 12,
+      "type": "GEMXRetargetFBX",
+      "pos": [
+        1369.1345746165712,
+        79.95613338632954
+      ],
+      "size": [
+        323.694921875,
+        170
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "motion",
+          "type": "GEM_MOTION",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D_FBX",
+          "links": [
+            15
+          ]
+        },
+        {
+          "name": "fbx_path",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GEMXRetargetFBX"
+      },
+      "widgets_values": [
+        "mixamo-x-bot.fbx",
+        true,
+        0,
+        "auto"
+      ],
+      "widgets_values_named": {
+        "character": "mixamo-x-bot.fbx",
+        "root_motion": true,
+        "yaw_offset": 0,
+        "material": "auto"
+      }
+    },
+    {
+      "id": 13,
+      "type": "Preview3DAdvanced",
+      "pos": [
+        1752.8294964915713,
+        79.95613338632954
+      ],
+      "size": [
+        400,
+        550
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D_GLB,FILE_3D_GLTF,FILE_3D_FBX,FILE_3D_OBJ,FILE_3D_STL,FILE_3D_USDZ,FILE_3D",
+          "link": 15
+        },
+        {
+          "name": "model_3d_info",
+          "shape": 7,
+          "type": "LOAD3D_MODEL_INFO",
+          "link": null
+        },
+        {
+          "name": "camera_info",
+          "shape": 7,
+          "type": "LOAD3D_CAMERA",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D",
+          "links": null
+        },
+        {
+          "name": "model_3d_info",
+          "type": "LOAD3D_MODEL_INFO",
+          "links": null
+        },
+        {
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "links": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Preview3DAdvanced",
+        "Camera Config": {
+          "cameraType": "perspective",
+          "fov": 35,
+          "state": {
+            "position": {
+              "x": 0.9703756288775781,
+              "y": 0.8219616501844565,
+              "z": 4.339866522055426
+            },
+            "target": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "zoom": 1,
+            "cameraType": "perspective",
+            "quaternion": {
+              "x": -0.09070697537129466,
+              "y": 0.10930905675449926,
+              "z": 0.010017170940555483,
+              "w": 0.9898097953732226
+            },
+            "fov": 35,
+            "aspect": 1,
+            "near": 0.01,
+            "far": 10000,
+            "frustum": {
+              "left": -5,
+              "right": 5,
+              "top": 5,
+              "bottom": -5
+            }
+          }
+        },
+        "Last Time Model File": "preview3d_advanced_88f62ba097744d1ab278f661250ddd17.fbx",
+        "Last Time Model Folder": "temp",
+        "Light Config": {
+          "intensity": 2.4000000000000004,
+          "hdri": {
+            "enabled": false,
+            "hdriPath": "",
+            "showAsBackground": false,
+            "intensity": 1
+          }
+        },
+        "Scene Config": {
+          "showGrid": true,
+          "backgroundColor": "#282828",
+          "backgroundImage": "",
+          "backgroundRenderMode": "tiled",
+          "models": [
+            {
+              "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "quaternion": {
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "w": 1
+              },
+              "scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          ]
+        },
+        "Model Config": {
+          "upDirection": "original",
+          "materialMode": "original",
+          "showSkeleton": false,
+          "gizmo": {
+            "enabled": false,
+            "mode": "translate",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        }
+      },
+      "widgets_values": [
+        "",
+        1024,
+        1024
+      ],
+      "widgets_values_named": {
+        "viewport_state": "",
+        "width": 1024,
+        "height": 1024
+      }
+    },
+    {
+      "id": 14,
+      "type": "GEMXRetargetFBX",
+      "pos": [
+        1369.1345746165712,
+        639.9561333863295
+      ],
+      "size": [
+        323.694921875,
+        170
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "motion",
+          "type": "GEM_MOTION",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D_FBX",
+          "links": [
+            17
+          ]
+        },
+        {
+          "name": "fbx_path",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "links": [
+            21
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GEMXRetargetFBX"
+      },
+      "widgets_values": [
+        "unreal-uefn-mannequin.fbx",
+        true,
+        0,
+        "auto"
+      ],
+      "widgets_values_named": {
+        "character": "unreal-uefn-mannequin.fbx",
+        "root_motion": true,
+        "yaw_offset": 0,
+        "material": "auto"
+      }
+    },
+    {
+      "id": 15,
+      "type": "Preview3DAdvanced",
+      "pos": [
+        1752.8294964915713,
+        639.9561333863295
+      ],
+      "size": [
+        400,
+        550
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D_GLB,FILE_3D_GLTF,FILE_3D_FBX,FILE_3D_OBJ,FILE_3D_STL,FILE_3D_USDZ,FILE_3D",
+          "link": 17
+        },
+        {
+          "name": "model_3d_info",
+          "shape": 7,
+          "type": "LOAD3D_MODEL_INFO",
+          "link": null
+        },
+        {
+          "name": "camera_info",
+          "shape": 7,
+          "type": "LOAD3D_CAMERA",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D",
+          "links": null
+        },
+        {
+          "name": "model_3d_info",
+          "type": "LOAD3D_MODEL_INFO",
+          "links": null
+        },
+        {
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "links": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Preview3DAdvanced",
+        "Camera Config": {
+          "cameraType": "perspective",
+          "fov": 35,
+          "state": {
+            "position": {
+              "x": 24.53787260902618,
+              "y": 24.537872609026252,
+              "z": 24.537872609026184
+            },
+            "target": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "zoom": 1,
+            "cameraType": "perspective",
+            "quaternion": {
+              "x": -0.2798481423331219,
+              "y": 0.36470519963100073,
+              "z": 0.11591689595929536,
+              "w": 0.8804762392171492
+            },
+            "fov": 35,
+            "aspect": 1,
+            "near": 0.01,
+            "far": 10000,
+            "frustum": {
+              "left": -5,
+              "right": 5,
+              "top": 5,
+              "bottom": -5
+            }
+          }
+        },
+        "Last Time Model File": "preview3d_advanced_c276814ceb56421d9c3e0d7c7c753043.fbx",
+        "Last Time Model Folder": "temp",
+        "Light Config": {
+          "intensity": 2.4000000000000004,
+          "hdri": {
+            "enabled": false,
+            "hdriPath": "",
+            "showAsBackground": false,
+            "intensity": 1
+          }
+        },
+        "Scene Config": {
+          "showGrid": true,
+          "backgroundColor": "#282828",
+          "backgroundImage": "",
+          "backgroundRenderMode": "tiled",
+          "models": [
+            {
+              "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "quaternion": {
+                "x": -0.7071067811865475,
+                "y": 0,
+                "z": 0,
+                "w": 0.7071067811865476
+              },
+              "scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          ]
+        },
+        "Model Config": {
+          "upDirection": "original",
+          "materialMode": "original",
+          "showSkeleton": false,
+          "gizmo": {
+            "enabled": false,
+            "mode": "translate",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        }
+      },
+      "widgets_values": [
+        "",
+        1024,
+        1024
+      ],
+      "widgets_values_named": {
+        "viewport_state": "",
+        "width": 1024,
+        "height": 1024
+      }
+    },
+    {
+      "id": 16,
+      "type": "GEMXRetargetFBX",
+      "pos": [
+        1369.1345746165712,
+        1199.9561333863296
+      ],
+      "size": [
+        323.694921875,
+        170
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "motion",
+          "type": "GEM_MOTION",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D_FBX",
+          "links": [
+            19
+          ]
+        },
+        {
+          "name": "fbx_path",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GEMXRetargetFBX"
+      },
+      "widgets_values": [
+        "unity-robot-kyle.fbx",
+        true,
+        0,
+        "auto"
+      ],
+      "widgets_values_named": {
+        "character": "unity-robot-kyle.fbx",
+        "root_motion": true,
+        "yaw_offset": 0,
+        "material": "auto"
+      }
+    },
+    {
+      "id": 17,
+      "type": "Preview3DAdvanced",
+      "pos": [
+        1752.8294964915713,
+        1199.9561333863296
+      ],
+      "size": [
+        400,
+        550
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D_GLB,FILE_3D_GLTF,FILE_3D_FBX,FILE_3D_OBJ,FILE_3D_STL,FILE_3D_USDZ,FILE_3D",
+          "link": 19
+        },
+        {
+          "name": "model_3d_info",
+          "shape": 7,
+          "type": "LOAD3D_MODEL_INFO",
+          "link": null
+        },
+        {
+          "name": "camera_info",
+          "shape": 7,
+          "type": "LOAD3D_CAMERA",
+          "link": 22
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_3d",
+          "type": "FILE_3D",
+          "links": null
+        },
+        {
+          "name": "model_3d_info",
+          "type": "LOAD3D_MODEL_INFO",
+          "links": null
+        },
+        {
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "links": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Preview3DAdvanced",
+        "Camera Config": {
+          "cameraType": "perspective",
+          "fov": 35,
+          "state": {
+            "position": {
+              "x": 3.9905225630654395,
+              "y": 3.9905225630654395,
+              "z": 3.99052256306544
+            },
+            "target": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "zoom": 1,
+            "cameraType": "perspective",
+            "quaternion": {
+              "x": -0.27984814233312133,
+              "y": 0.3647051996310008,
+              "z": 0.11591689595929511,
+              "w": 0.8804762392171493
+            },
+            "fov": 35,
+            "aspect": 1,
+            "near": 0.01,
+            "far": 10000,
+            "frustum": {
+              "left": -5,
+              "right": 5,
+              "top": 5,
+              "bottom": -5
+            }
+          }
+        },
+        "Last Time Model File": "preview3d_advanced_b4d0e0b89d9a4d3a867539fb424fe435.fbx",
+        "Last Time Model Folder": "temp",
+        "Light Config": {
+          "intensity": 2.4000000000000004,
+          "hdri": {
+            "enabled": false,
+            "hdriPath": "",
+            "showAsBackground": false,
+            "intensity": 1
+          }
+        },
+        "Scene Config": {
+          "showGrid": true,
+          "backgroundColor": "#282828",
+          "backgroundImage": "",
+          "backgroundRenderMode": "tiled",
+          "models": [
+            {
+              "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "quaternion": {
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "w": 1
+              },
+              "scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          ]
+        },
+        "Model Config": {
+          "upDirection": "original",
+          "materialMode": "original",
+          "showSkeleton": false,
+          "gizmo": {
+            "enabled": false,
+            "mode": "translate",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        }
+      },
+      "widgets_values": [
+        "",
+        1024,
+        1024
+      ],
+      "widgets_values_named": {
+        "viewport_state": "",
+        "width": 1024,
+        "height": 1024
+      }
+    }
+  ],
+  "links": [
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      2,
+      2,
+      3,
+      1,
+      "FLOAT"
+    ],
+    [
+      4,
+      3,
+      0,
+      4,
+      0,
+      "STRING"
+    ],
+    [
+      12,
+      1,
+      0,
+      11,
+      0,
+      "VIDEO"
+    ],
+    [
+      13,
+      11,
+      0,
+      2,
+      0,
+      "VIDEO"
+    ],
+    [
+      14,
+      4,
+      0,
+      12,
+      0,
+      "GEM_MOTION"
+    ],
+    [
+      15,
+      12,
+      0,
+      13,
+      0,
+      "FILE_3D_FBX"
+    ],
+    [
+      16,
+      4,
+      0,
+      14,
+      0,
+      "GEM_MOTION"
+    ],
+    [
+      17,
+      14,
+      0,
+      15,
+      0,
+      "FILE_3D_FBX"
+    ],
+    [
+      18,
+      4,
+      0,
+      16,
+      0,
+      "GEM_MOTION"
+    ],
+    [
+      19,
+      16,
+      0,
+      17,
+      0,
+      "FILE_3D_FBX"
+    ],
+    [
+      20,
+      12,
+      2,
+      13,
+      2,
+      "LOAD3D_CAMERA"
+    ],
+    [
+      21,
+      14,
+      2,
+      15,
+      2,
+      "LOAD3D_CAMERA"
+    ],
+    [
+      22,
+      16,
+      2,
+      17,
+      2,
+      "LOAD3D_CAMERA"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6061045482024398,
+      "offset": [
+        199.0688904862477,
+        -3.1375343661940955
+      ]
+    },
+    "frontendVersion": "1.55.17"
+  },
+  "version": 0.4
+}

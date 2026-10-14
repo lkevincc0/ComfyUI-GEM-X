@@ -1,26 +1,23 @@
-[build-system]
-requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.build_meta"
+[project]
+name = "comfyui-gem-x"
+description = "Video motion capture with NVIDIA GEM-X (SOMA body) and retargeting to Mixamo / Unreal / Unity FBX characters, previewed in ComfyUI's 3D viewer."
+version = "0.1.0"
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.10"
+# ComfyUI-side dependencies only; the inference worker uses requirements-worker.txt (install.py).
+dependencies = ["opencv-python-headless"]
 
-[tool.black]
-line-length = 100
-target-version = ["py310"]
-exclude = '''
-/(third_party|build|dist|\.egg-info)/
-'''
+[project.urls]
+Repository = "https://github.com/lkevincc0/ComfyUI-GEM-X"
+"Bug Tracker" = "https://github.com/lkevincc0/ComfyUI-GEM-X/issues"
+
+[tool.comfy]
+PublisherId = "lkevincc"
+DisplayName = "ComfyUI-GEM-X"
+Icon = ""
 
 [tool.ruff]
 target-version = "py310"
 line-length = 100
-exclude = [".venv", "build", "dist", "*.egg-info", "notebooks"]
-
-[tool.ruff.lint]
-select = ["B", "E", "F", "I", "UP", "W"]
-ignore = [
-    "E501",   # line too long (handled by black)
-    "E402",   # module-import-not-at-top (common in ML code with sys.path)
-    "B905",   # zip-without-explicit-strict (Python 3.10+ pattern, not always needed)
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["gem", "tools"]
+exclude = [".venv", "third_party"]

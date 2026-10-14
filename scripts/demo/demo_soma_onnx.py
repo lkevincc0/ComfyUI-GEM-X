@@ -90,6 +90,7 @@ from gem.utils.geo_transform import (
     get_bbx_xys_from_xyxy,
     normalize_T_w2c,
 )
+from gem.utils.model_paths import model_path
 from gem.utils.pylogger import Log
 
 
@@ -108,8 +109,6 @@ def _ensure_pipeline_deps():
     global get_video_lwh, get_video_reader, get_writer
     global merge_videos_grid_2x2, merge_videos_horizontal, read_video_np, save_video
     global draw_bbx_xyxy_on_image_batch
-    global Settings, create_meshes, get_ground
-    global get_global_cameras_static_v2, get_ground_params_from_points
     if "SomaLayer" in globals():
         return
     from gem.utils.kp2d_utils import smooth_bbx_xyxy as _smooth_bbx_xyxy
@@ -125,16 +124,6 @@ def _ensure_pipeline_deps():
         save_video as _save_video,
     )
     from gem.utils.vis.cv2_utils import draw_bbx_xyxy_on_image_batch as _draw_bbx
-    from gem.utils.vis.o3d_render import (
-        Settings as _Settings,
-        create_meshes as _create_meshes,
-        get_ground as _get_ground,
-    )
-    from gem.utils.vis.renderer import (
-        get_global_cameras_static_v2 as _get_global_cameras_static_v2,
-        get_ground_params_from_points as _get_ground_params_from_points,
-    )
-
     smooth_bbx_xyxy = _smooth_bbx_xyxy
     detach_to_cpu = _detach_to_cpu
     to_cuda = _to_cuda
@@ -147,6 +136,24 @@ def _ensure_pipeline_deps():
     read_video_np = _read_video_np
     save_video = _save_video
     draw_bbx_xyxy_on_image_batch = _draw_bbx
+
+
+def _ensure_render_deps():
+    """Keep Open3D and its system libraries optional for data-only inference."""
+    global Settings, create_meshes, get_ground
+    global get_global_cameras_static_v2, get_ground_params_from_points
+    if "Settings" in globals():
+        return
+    from gem.utils.vis.o3d_render import (
+        Settings as _Settings,
+        create_meshes as _create_meshes,
+        get_ground as _get_ground,
+    )
+    from gem.utils.vis.renderer import (
+        get_global_cameras_static_v2 as _get_global_cameras_static_v2,
+        get_ground_params_from_points as _get_ground_params_from_points,
+    )
+
     Settings = _Settings
     create_meshes = _create_meshes
     get_ground = _get_ground
@@ -355,7 +362,10 @@ def _find_best_onnx(base_path: str) -> str:
     return base_path
 
 
-def load_vitpose(onnx_path="inputs/onnx/vitpose.onnx", trt_path="outputs/trt/vitpose.engine"):
+def load_vitpose(
+    onnx_path=model_path("onnx", "vitpose.onnx"),
+    trt_path=(model_path("trt", "vitpose.engine") if "GEM_X_MODEL_ROOT" in os.environ else "outputs/trt/vitpose.engine"),
+):
     """Load VitPose: prefer CoreML > TRT > quantized ONNX > ONNX > PyTorch."""
     # CoreML (macOS only)
     coreml_path = _find_coreml(onnx_path)
@@ -429,8 +439,8 @@ class _OnnxBackbone(torch.nn.Module):
 
 
 def load_sam3db(
-    backbone_onnx_path="inputs/onnx/sam3db_backbone.onnx",
-    backbone_trt_path="outputs/trt/sam3db_backbone.engine",
+    backbone_onnx_path=model_path("onnx", "sam3db_backbone.onnx"),
+    backbone_trt_path=(model_path("trt", "sam3db_backbone.engine") if "GEM_X_MODEL_ROOT" in os.environ else "outputs/trt/sam3db_backbone.engine"),
     cfg=None,
 ):
     """Load SAM-3D-Body with hybrid ONNX backbone + PyTorch decoder.
@@ -495,8 +505,8 @@ def load_sam3db(
 
 
 def load_denoiser(
-    onnx_path="inputs/onnx/gem_denoiser.onnx",
-    trt_path="outputs/trt/gem_denoiser.engine",
+    onnx_path=model_path("onnx", "gem_denoiser.onnx"),
+    trt_path=(model_path("trt", "gem_denoiser.engine") if "GEM_X_MODEL_ROOT" in os.environ else "outputs/trt/gem_denoiser.engine"),
     no_imgfeat=False,
 ):
     """Load GEM Denoiser: prefer CoreML > TRT > quantized ONNX > ONNX > None.
@@ -977,16 +987,9 @@ def run_inference_fast(cfg, data, force_pytorch=False, no_imgfeat=False, use_ddi
 
         # Decode with EnDecoder (still PyTorch — lightweight)
 
-        model = _hydra.utils.instantiate(cfg.model, _recursive_=False)
-        ckpt_path = cfg.ckpt_path
-        if ckpt_path is None:
-            from gem.utils.hf_utils import download_checkpoint
-
-            ckpt_path = download_checkpoint()
-        model.load_pretrained_model(ckpt_path)
-        model = model.eval().cuda()
-
-        endecoder = model.endecoder
+        # This decoder uses the configured fixed statistics and has no learned weights.
+        # Construct it directly: the full GEM model would load an unused network and body mesh.
+        endecoder = _hydra.utils.instantiate(cfg.endecoder)
         if endecoder.obs_indices_dict is None:
             endecoder.build_obs_indices_dict()
 
@@ -1071,6 +1074,7 @@ def _open_cv2_writer(path, width, height, fps):
 def render_incam(cfg, fps=30):
     """Render in-camera overlay (same as demo_soma.py)."""
     _ensure_pipeline_deps()
+    _ensure_render_deps()
     import open3d as o3d
 
     pred = torch.load(cfg.paths.hpe_results)
@@ -1078,7 +1082,7 @@ def render_incam(cfg, fps=30):
 
     device = "cuda:0"
     soma = SomaLayer(
-        data_root="inputs/soma_assets",
+        data_root=model_path("soma_assets"),
         low_lod=True,
         device=device,
         identity_model_type="mhr",
@@ -1134,6 +1138,7 @@ def render_incam(cfg, fps=30):
 def render_global_o3d(cfg, fps=30):
     """Render global view (same as demo_soma.py)."""
     _ensure_pipeline_deps()
+    _ensure_render_deps()
     import open3d as o3d
     from gem.utils.geo_transform import apply_T_on_points, compute_T_ayfz2ay
 
@@ -1142,7 +1147,7 @@ def render_global_o3d(cfg, fps=30):
 
     device = "cuda:0"
     soma = SomaLayer(
-        data_root="inputs/soma_assets",
+        data_root=model_path("soma_assets"),
         low_lod=True,
         device=device,
         identity_model_type="mhr",

@@ -3,29 +3,31 @@
 
 from pathlib import Path
 
+from gem.utils.model_paths import model_path
+
 HF_REPO_ID = "nvidia/GEM-X"
 
 # GEM-SOMA checkpoint
 DEFAULT_CKPT_FILENAME = "gem_soma.ckpt"
-DEFAULT_CKPT_DIR = "inputs/pretrained"
+DEFAULT_CKPT_DIR = model_path("pretrained")
 
 # ViTPose checkpoint
 VITPOSE_CKPT_FILENAME = "vitpose.pth"
-VITPOSE_CKPT_DIR = "inputs/checkpoints/vitpose"
+VITPOSE_CKPT_DIR = model_path("checkpoints", "vitpose")
 
 # SAM-3D-Body checkpoint
 SAM3D_CKPT_FILENAME = "sam3d_body.ckpt"
 SAM3D_CONFIG_FILENAME = "model_config.yaml"
-SAM3D_CKPT_DIR = "inputs/checkpoints/sam-3d-body-dinov3"
+SAM3D_CKPT_DIR = model_path("checkpoints", "sam-3d-body-dinov3")
 
 # MHR model
 MHR_MODEL_FILENAME = "mhr_model.pt"
-MHR_MODEL_DIR = "inputs/mhr_data"
+MHR_MODEL_DIR = model_path("mhr_data")
 
 # SOMA scale data
 SOMA_SCALE_MEAN_FILENAME = "scale_mean.pth"
 SOMA_SCALE_COMPS_FILENAME = "scale_comps.pth"
-SOMA_DATA_DIR = "inputs/soma_data"
+SOMA_DATA_DIR = model_path("soma_data")
 
 
 def _download_hf_file(repo_id, filename, local_dir):
@@ -78,7 +80,7 @@ def download_soma_data(repo_id=HF_REPO_ID, local_dir=SOMA_DATA_DIR):
 
 
 # ONNX models for fast demo
-ONNX_DIR = "inputs/onnx"
+ONNX_DIR = model_path("onnx")
 ONNX_MODELS = {
     "vitpose": ("vitpose.onnx", "vitpose.onnx.data"),
     "gem_denoiser": ("gem_denoiser.onnx", "gem_denoiser.onnx.data"),

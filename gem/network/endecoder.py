@@ -11,6 +11,7 @@ from gem.utils.rotation_conversions import (
     matrix_to_rotation_6d,
     rotation_6d_to_matrix,
 )
+from gem.utils.model_paths import model_path
 from gem.utils.soma_utils.soma_layer import SomaLayer
 
 from . import stats_compose
@@ -103,7 +104,7 @@ class EnDecoder(nn.Module):
         """Lazily initialize the SOMA body model."""
         if self.soma_model is None:
             self.soma_model = SomaLayer(
-                data_root="inputs/soma_assets",
+                data_root=model_path("soma_assets"),
                 low_lod=True,
                 device="cuda",
                 identity_model_type="mhr",

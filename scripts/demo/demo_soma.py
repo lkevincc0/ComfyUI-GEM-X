@@ -26,6 +26,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # from body_models.soma_hybrid import SomaLayer as SomaLayer_hybrid
+from gem.utils.model_paths import model_path
 from gem.utils.soma_utils.soma_layer import SomaLayer
 from gem.utils.geo_transform import (
     apply_T_on_points,
@@ -284,7 +285,7 @@ def render_incam(cfg, fps=30):
 
     device = "cuda:0"
     soma = SomaLayer(
-        data_root="inputs/soma_assets",
+        data_root=model_path("soma_assets"),
         low_lod=True,
         device=device,
         identity_model_type="mhr",
@@ -348,7 +349,7 @@ def render_global_o3d(cfg, fps=30):
 
     device = "cuda:0"
     soma = SomaLayer(
-        data_root="inputs/soma_assets",
+        data_root=model_path("soma_assets"),
         low_lod=True,
         device=device,
         identity_model_type="mhr",

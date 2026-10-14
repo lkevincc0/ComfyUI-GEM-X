@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+target-version = "py38"
+line-length = 100
+exclude = [".venv", "build", "dist", "*.egg-info", "notebooks"]
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP", "W"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Script adds repo to path before importing
+"tools/convert_amass_to_soma.py" = ["E402"]
+# Warp kernels use int()/float() as type declarations, not redundant casts
+"soma/geometry/*_warp.py" = ["UP018"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["soma", "tools"]
