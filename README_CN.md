@@ -92,10 +92,10 @@ python -m comfyui_gem_x.models /path/to/ComfyUI/models/gem_x --all    # 全部�
 ## 测试
 
 ```bash
-python -m unittest discover -s tests -v
+./.venv/bin/python -m unittest discover -s tests -v
 ```
 
-只检查进程调用、异常、取消和结果交接，不代表模型数值或 GPU 验证。
+测试覆盖工作进程调用、异常、取消、API 和 WebSocket 转发、视频范围请求、ZIP 内容以及 BVH 旋转回读；模型精度和 GPU 执行需另外进行端到端验证。
 
 ## 致谢与许可
 

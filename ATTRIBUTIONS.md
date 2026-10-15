@@ -2,6 +2,14 @@ This repository uses the following third-party components. Their respective lice
 
 ---
 
+## Browser animation viewer — Three.js and fflate
+
+The standalone panel bundles Three.js 0.180.0 and its FBX loader, orbit controls and NURBS helpers in `comfyui_gem_x/panel/vendor/`. JavaScript module filenames/imports were adjusted for local serving. Three.js is MIT licensed; see [THREE-LICENSE.txt](comfyui_gem_x/panel/vendor/THREE-LICENSE.txt).
+
+The FBX loader uses fflate 0.8.2, also MIT licensed; see [FFLATE-LICENSE.txt](comfyui_gem_x/panel/vendor/FFLATE-LICENSE.txt). Both libraries are served locally without a runtime CDN dependency.
+
+---
+
 ## OpenAI — guided-diffusion
 
 https://github.com/openai/guided-diffusion

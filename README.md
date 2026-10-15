@@ -92,10 +92,10 @@ The example workflow: Load Video → Trim Video (pick a segment) → motion capt
 ## Tests
 
 ```bash
-python -m unittest discover -s tests -v
+./.venv/bin/python -m unittest discover -s tests -v
 ```
 
-These only check process calls, errors, cancellation and result hand-off; they are not a model accuracy or GPU test.
+Tests cover worker calls, errors, cancellation, API and WebSocket forwarding, video range responses, ZIP contents and BVH rotation round-trips. Model accuracy and GPU execution require separate end-to-end validation.
 
 ## Credits and license
 
